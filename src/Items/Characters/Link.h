@@ -8,9 +8,10 @@
 
 #include "Character.h"
 
-class Link : public Character {
+class Link : public Character
+{
 public:
-    explicit Link(QGraphicsItem *parent = nullptr);
+    explicit Link(QGraphicsItem* parent = nullptr);
 };
 
 

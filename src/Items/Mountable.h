@@ -6,16 +6,23 @@
 #define QT_PROGRAMMING_2024_MOUNTABLE_H
 
 
-class Mountable {
+class Mountable
+{
 public:
+    virtual ~Mountable() = default;
+
     virtual void mountToParent();
 
     virtual void unmount();
 
     [[nodiscard]] bool isMounted() const;
 
+    [[nodiscard]] bool isMountable() const;
+
+    void setMountable(bool mountable);
+
 private:
-    bool mounted{};
+    bool mounted{}, mountable{true};
 };
 
 

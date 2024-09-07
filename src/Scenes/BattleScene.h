@@ -5,16 +5,24 @@
 #ifndef QT_PROGRAMMING_2024_BATTLESCENE_H
 #define QT_PROGRAMMING_2024_BATTLESCENE_H
 
+#include <QApplication>
 #include <QKeyEvent>
+#include <QLineEdit>
+#include <QPushButton>
+#include "InformationArea.h"
 #include "Scene.h"
+#include "../Items/ArmorSuits/ArmorSuit.h"
 #include "../Items/Maps/Map.h"
 #include "../Items/Characters/Character.h"
+#include "../Items/Effects/Effect.h"
+#include "../Items/Platforms/Platform.h"
 
-class BattleScene : public Scene {
-Q_OBJECT
+class BattleScene : public Scene
+{
+    Q_OBJECT
 
 public:
-    explicit BattleScene(QObject *parent);
+    explicit BattleScene(QObject* parent);
 
     void processInput() override;
 
@@ -22,24 +30,67 @@ public:
 
     void processPicking() override;
 
-protected slots:
+    void processLanding();
 
+    void processCollision();
+
+    void processCheatCode(const QString& cheatCode);
+
+    void processAttacking();
+
+    void processHitting();
+
+    void addEffect(Weapon* weapon, Item* item);
+
+    void spreadEffect(Effect* effect, Item* item);
+
+    void processEffect();
+
+    void processInformation();
+
+signals:
+    void gameOver(QString);
+
+protected slots:
     void update() override;
 
-protected:
-    void keyPressEvent(QKeyEvent *event) override;
+    void gameOverUpdate();
 
-    void keyReleaseEvent(QKeyEvent *event) override;
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+
+    void keyReleaseEvent(QKeyEvent* event) override;
 
 private:
+    Mountable* findNearestUnmountedMountable(const QPointF& pos,
+                                             qreal distance_threshold = std::numeric_limits<qreal>::max());
 
-    Mountable *findNearestUnmountedMountable(const QPointF &pos, qreal distance_threshold = std::numeric_limits<qreal>::max());
+    Mountable* pickupMountable(Character* character, Mountable* mountable);
 
-    static Mountable * pickupMountable(Character *character, Mountable *mountable);
+    void discardWeapon(Character* character);
 
-    Map *map;
-    Character *character;
-    Armor *spareArmor;
+    void shootArrow(Character* character);
+
+    void autoGenerateItems();
+
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
+    void endTheGame();
+
+    Map* map;
+    Character* character[2] = {};
+    QPointF gravitationalAcceleration = QPointF(0,0.003);
+    QVector<Platform*> platforms;
+    QVector<Weapon*> spareWeapons;
+    QVector<ArmorSuit*> spareArmorSuits;
+    QVector<Effect*> effects;
+    QVector<Item*> effectedItems;
+    QVector<Item*> toBeEffectedItems;
+    QGraphicsProxyWidget *cheatCodeLineEditProxy;
+    QLineEdit* cheatCodeInputLineEdit;
+    InformationArea* infoArea;
+    bool isGameOver = false;
+    int gameOverCountdown = 90;
 };
 
 

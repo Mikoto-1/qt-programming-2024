@@ -5,5 +5,59 @@
         <file>Items/HeadEquipments/CapOfTheHero/BotW_Cap_of_the_Hero_Icon.png</file>
         <file>Items/LegEquipments/WellWornTrousers/BotW_Well-Worn_Trousers_Icon.png</file>
         <file>Items/Maps/Battlefield/g9tOqth.png</file>
+        <file>Items/Maps/Battlefield/country-platform.png</file>
+        <file>Items/Maps/Platforms/WoodPlatform.png</file>
+        <file>Items/Maps/Platforms/StonePlatform.png</file>
+        <file>Items/Maps/Platforms/BronzePlatform.png</file>
+        <file>Items/Maps/Platforms/SilverPlatform.png</file>
+        <file>Items/Maps/Platforms/GoldPlatform.png</file>
+        <file>Items/Swords/Sword.png</file>
+        <file>Items/Swords/FireSword.png</file>
+        <file>Items/Swords/IceSword.png</file>
+        <file>Items/Swords/LightningSword.png</file>
+        <file>Items/Swords/WoodSword.png</file>
+        <file>Items/Swords/MetalSword.png</file>
+        <file>Items/LargeSwords/LargeSword.png</file>
+        <file>Items/LargeSwords/FireLargeSword.png</file>
+        <file>Items/LargeSwords/IceLargeSword.png</file>
+        <file>Items/LargeSwords/LightningLargeSword.png</file>
+        <file>Items/LargeSwords/WoodLargeSword.png</file>
+        <file>Items/LargeSwords/MetalLargeSword.png</file>
+        <file>Items/Spears/Spear.png</file>
+        <file>Items/Spears/FireSpear.png</file>
+        <file>Items/Spears/IceSpear.png</file>
+        <file>Items/Spears/LightningSpear.png</file>
+        <file>Items/Spears/WoodSpear.png</file>
+        <file>Items/Spears/MetalSpear.png</file>
+        <file>Items/Bows/OrdinaryWoodBow.png</file>
+        <file>Items/Bows/OrdinaryMetalBow.png</file>
+        <file>Items/Bows/LegendaryWoodBow.png</file>
+        <file>Items/Bows/LegendaryMetalBow.png</file>
+        <file>Items/Bows/EpicWoodBow.png</file>
+        <file>Items/Bows/EpicMetalBow.png</file>
+        <file>Items/Arrows/Arrow.png</file>
+        <file>Items/Arrows/FireArrow.png</file>
+        <file>Items/Arrows/IceArrow.png</file>
+        <file>Items/Arrows/LightningArrow.png</file>
+        <file>Items/Armors/FireProofArmor.png</file>
+        <file>Items/Armors/ColdProofArmor.png</file>
+        <file>Items/Armors/LightningProofArmor.png</file>
+        <file>Items/LegEquipments/FireProofLegEquipment.png</file>
+        <file>Items/LegEquipments/ColdProofLegEquipment.png</file>
+        <file>Items/LegEquipments/LightningProofLegEquipment.png</file>
+        <file>Items/HeadEquipments/FireProofHeadEquipment.png</file>
+        <file>Items/HeadEquipments/ColdProofHeadEquipment.png</file>
+        <file>Items/HeadEquipments/LightningProofHeadEquipment.png</file>
+        <file>Items/Effects/FireEffect.png</file>
+        <file>Items/Effects/IceEffect.png</file>
+        <file>Items/Effects/LightningEffect.png</file>
+        <file>Icons/StartGameButton.ico</file>
+        <file>Icons/LeftWinHint.ico</file>
+        <file>Icons/RightWinHint.ico</file>
+        <file>Icons/RestartButton.ico</file>
+        <file>Icons/ExitButton.ico</file>
+        <file>Icons/MainMenuButton.ico</file>
+        <file>Icons/GamePauseHint.ico</file>
+        <file>Icons/ResumeButton.ico</file>
     </qresource>
 </RCC>

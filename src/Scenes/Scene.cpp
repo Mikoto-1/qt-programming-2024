@@ -5,15 +5,21 @@
 #include <QDateTime>
 #include "Scene.h"
 
-Scene::Scene(QObject *parent) : QGraphicsScene(parent), timer(new QTimer(this)) {
+Scene::Scene(QObject* parent) : QGraphicsScene(parent), timer(new QTimer(this))
+{
     connect(timer, &QTimer::timeout, this, &Scene::update);
 }
 
-void Scene::update() {
-    auto currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
-    if (lastTime == -1) { // first frame
+void Scene::update()
+{
+    const auto currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    if (lastTime == -1)
+    {
+        // first frame
         deltaTime = 0;
-    } else {
+    }
+    else
+    {
         deltaTime = currentTime - lastTime;
     }
     lastTime = currentTime;
@@ -23,19 +29,25 @@ void Scene::update() {
     processPicking();
 }
 
-void Scene::startLoop() {
+void Scene::startLoop() const
+{
     timer->start(1000 / 90); // 90FPS
 }
 
-void Scene::processInput() {
-
+void Scene::stopLoop() const
+{
+    timer->stop();
 }
 
-void Scene::processMovement() {
-
+void Scene::processInput()
+{
 }
 
-void Scene::processPicking() {
+void Scene::processMovement()
+{
+}
 
+void Scene::processPicking()
+{
 }
 

@@ -9,11 +9,12 @@
 #include <QPointF>
 #include "../Item.h"
 
-class Map : public Item {
+class Map : public Item
+{
 public:
-    explicit Map(QGraphicsItem *parent = nullptr, const QString &pixmapPath = "");
+    explicit Map(QGraphicsItem* parent = nullptr, const QString& pixmapPath = "");
 
-    void scaleToFitScene(QGraphicsScene *scene);
+    void scaleToFitScene(QGraphicsScene* scene);
 
     virtual qreal getFloorHeight(); // Need to rewrite to support multiple platforms
 

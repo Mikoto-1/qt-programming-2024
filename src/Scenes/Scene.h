@@ -8,13 +8,16 @@
 #include <QGraphicsScene>
 #include <QTimer>
 
-class Scene : public QGraphicsScene {
-Q_OBJECT
+class Scene : public QGraphicsScene
+{
+    Q_OBJECT
 
 public:
-    explicit Scene(QObject *parent);
+    explicit Scene(QObject* parent);
 
-    void startLoop();
+    void startLoop() const;
+
+    void stopLoop() const;
 
     virtual void processInput();
 
@@ -23,14 +26,13 @@ public:
     virtual void processPicking();
 
 protected slots:
-
     virtual void update();
 
 protected:
     qint64 deltaTime{};
 
 private:
-    QTimer *timer;
+    QTimer* timer;
     qint64 lastTime{-1};
 };
 

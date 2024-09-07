@@ -8,9 +8,10 @@
 
 #include "LegEquipment.h"
 
-class WellWornTrousers : public LegEquipment {
+class WellWornTrousers : public LegEquipment
+{
 public:
-    explicit WellWornTrousers(QGraphicsItem *parent);
+    explicit WellWornTrousers(QGraphicsItem* parent);
 };
 
 

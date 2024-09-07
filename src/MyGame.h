@@ -7,17 +7,32 @@
 
 #include <QGraphicsView>
 #include <QMainWindow>
+
+#include "Scenes/BattleScene.h"
 #include "Scenes/Scene.h"
 
-class MyGame : public QMainWindow {
-Q_OBJECT
+class MyGame : public QMainWindow
+{
+    Q_OBJECT
 
 public:
-    explicit MyGame(QWidget *parent = nullptr);
+    explicit MyGame(QWidget* parent = nullptr);
+
+    void startGame();
+
+    void gameOver(const QString&);
+
+    void reStartGame();
+
+    void exitGame();
+
+    void backToMainMenu();
 
 private:
-    Scene *battleScene;
-    QGraphicsView *view;
+    Scene* startMenuScene = nullptr;
+    Scene* battleScene = nullptr;
+    Scene* gameOverScene = nullptr;
+    QGraphicsView* view;
 };
 
 

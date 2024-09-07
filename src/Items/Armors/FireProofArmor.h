@@ -8,9 +8,10 @@
 
 #include "Armor.h"
 
-class FlamebreakerArmor : public Armor {
+class FireProofArmor : public Armor
+{
 public:
-    explicit FlamebreakerArmor(QGraphicsItem *parent = nullptr);
+    explicit FireProofArmor(QGraphicsItem* parent = nullptr);
 };
 
 

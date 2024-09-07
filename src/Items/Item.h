@@ -8,26 +8,42 @@
 #include <QGraphicsItem>
 #include <QPainter>
 
-class Item : public QGraphicsItem {
-public:
-    explicit Item(QGraphicsItem *parent, const QString &pixmapPath);
+#include "Materials/Material.h"
 
-    [[nodiscard]] QRectF boundingRect() const override {
-        if (pixmapItem != nullptr) {
+class Effect;
+
+class Item : public QGraphicsItem
+{
+public:
+    explicit Item(QGraphicsItem* parent, const QString& pixmapPath);
+
+    [[nodiscard]] QRectF boundingRect() const override
+    {
+        if (pixmapItem != nullptr)
+        {
             return this->pixmapItem->boundingRect();
         }
         // Empty rectangle makes the empty item not selectable and not collider
         return {};
     }
 
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-               QWidget *widget) override {
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+               QWidget* widget) override
+    {
         // Draw nothing as it is an empty item
         // Its pixmapItem is automatically handled by children's paint()
     }
 
+    Material* material;
+
+    QList<Effect*> effects;
+
+    void removeEffect();
+
+    Effect* currentEffect = nullptr;
+
 protected:
-    QGraphicsPixmapItem *pixmapItem{};
+    QGraphicsPixmapItem* pixmapItem{};
 };
 
 

@@ -8,9 +8,10 @@
 
 #include "Map.h"
 
-class Battlefield: public Map {
+class Battlefield : public Map
+{
 public:
-    explicit Battlefield(QGraphicsItem *parent= nullptr);
+    explicit Battlefield(QGraphicsItem* parent = nullptr);
 
     qreal getFloorHeight() override;
 };

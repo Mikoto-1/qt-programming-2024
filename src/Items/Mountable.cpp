@@ -4,14 +4,27 @@
 
 #include "Mountable.h"
 
-void Mountable::unmount() {
+void Mountable::unmount()
+{
     mounted = false;
 }
 
-bool Mountable::isMounted() const {
+bool Mountable::isMounted() const
+{
     return mounted;
 }
 
-void Mountable::mountToParent() {
+bool Mountable::isMountable() const
+{
+    return mountable;
+}
+
+void Mountable::setMountable(const bool mountable)
+{
+    this->mountable = mountable;
+}
+
+void Mountable::mountToParent()
+{
     mounted = true;
 }

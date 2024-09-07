@@ -3,19 +3,72 @@
 //
 #include "MyGame.h"
 #include "Scenes/BattleScene.h"
+#include "Scenes/GameOverScene.h"
+#include "Scenes/StartMenuScene.h"
 
-MyGame::MyGame(QWidget *parent) : QMainWindow(parent) {
-    battleScene = new BattleScene(this);
+MyGame::MyGame(QWidget* parent) : QMainWindow(parent)
+{
+    // initialize the start menu scene
+    startMenuScene = new StartMenuScene(this);
     view = new QGraphicsView(this);
-    view->setScene(battleScene);
+    // view->setScene(startMenuScene);
+    view->setScene(startMenuScene);
+
     // Set the view's window size to 1280x720
-    view->setFixedSize((int) view->scene()->width(), (int) view->scene()->height());
+    view->setFixedSize(static_cast<int>(view->scene()->width()), static_cast<int>(view->scene()->height()));
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 
     setCentralWidget(view);
     // Adjust the QMainWindow size to tightly wrap the QGraphicsView
-    setFixedSize(view->sizeHint());
+    setFixedSize(view->size());
+
+    // Connect the startGame signal from the startMenuScene to the startGame slot of MyGame
+    connect(dynamic_cast<const QtPrivate::FunctionPointer<void(StartMenuScene::*)()>::Object*>(startMenuScene),
+            &StartMenuScene::startGame, this, &MyGame::startGame);
+}
+
+void MyGame::startGame()
+{
+    battleScene = new BattleScene(this);
+    view->setScene(battleScene);
     battleScene->startLoop();
+    connect(dynamic_cast<const QtPrivate::FunctionPointer<void(BattleScene::*)()>::Object*>(battleScene),
+            &BattleScene::gameOver, this, &MyGame::gameOver);
+}
+
+void MyGame::gameOver(const QString& text)
+{
+    gameOverScene = new GameOverScene(this, text);
+    view->setScene(gameOverScene);
+    delete battleScene;
+    battleScene = nullptr;
+    connect(dynamic_cast<const QtPrivate::FunctionPointer<void(GameOverScene::*)()>::Object*>(gameOverScene), &GameOverScene::restartGame, this, &MyGame::reStartGame);
+    connect(dynamic_cast<const QtPrivate::FunctionPointer<void(GameOverScene::*)()>::Object*>(gameOverScene), &GameOverScene::exitGame, this, &MyGame::exitGame);
+    connect(dynamic_cast<const QtPrivate::FunctionPointer<void(GameOverScene::*)()>::Object*>(gameOverScene), &GameOverScene::backToMainMenu, this, &MyGame::backToMainMenu);
+}
+
+void MyGame::reStartGame()
+{
+    battleScene = new BattleScene(this);
+    view->setScene(battleScene);
+    battleScene->startLoop();
+    delete gameOverScene;
+    gameOverScene = nullptr;
+    connect(dynamic_cast<const QtPrivate::FunctionPointer<void(BattleScene::*)()>::Object*>(battleScene),
+            &BattleScene::gameOver, this, &MyGame::gameOver);
+}
+
+void MyGame::exitGame()
+{
+    QMainWindow::close();
+}
+
+void MyGame::backToMainMenu()
+{
+    view->setScene(startMenuScene);
+    delete gameOverScene;
+    gameOverScene = nullptr;
+
 }
