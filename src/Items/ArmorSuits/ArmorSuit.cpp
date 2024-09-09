@@ -70,6 +70,7 @@ void ArmorSuit::unmount()
     legEquipment = nullptr;
     headEquipment = nullptr;
     setVisible(true);
+    setInAir(true);
 }
 
 // QString ArmorSuit::getType() const

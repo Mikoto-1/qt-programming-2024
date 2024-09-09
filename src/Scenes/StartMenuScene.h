@@ -8,6 +8,7 @@
 #include <QGraphicsItem>
 #include <QPushButton>
 #include <QGraphicsProxyWidget>
+#include <QLabel>
 
 class StartMenuScene : public Scene
 {
@@ -17,7 +18,7 @@ public:
     explicit StartMenuScene(QObject* parent);
 
 signals:
-    void startGame();
+    void startGame(QString);
 
 private:
     QGraphicsPixmapItem* background;
@@ -25,6 +26,25 @@ private:
     QPushButton* startButton;
 
     QGraphicsProxyWidget* startButtonProxy;
+
+    QLabel* modeChooseLabel;
+
+    QPushButton* playerModeButton;
+
+    QPushButton* aiModeButton;
+
+    QGraphicsProxyWidget* modeChooseWidgetProxy;
+
+    QGraphicsProxyWidget* playerModeButtonProxy;
+
+    QGraphicsProxyWidget* aiModeButtonProxy;
+
+private slots:
+    void chooseMode();
+
+    void startPlayerMode();
+
+    void startAIMode();
 };
 
 

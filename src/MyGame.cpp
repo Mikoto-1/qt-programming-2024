@@ -29,9 +29,9 @@ MyGame::MyGame(QWidget* parent) : QMainWindow(parent)
             &StartMenuScene::startGame, this, &MyGame::startGame);
 }
 
-void MyGame::startGame()
+void MyGame::startGame(const QString& gameMode)
 {
-    battleScene = new BattleScene(this);
+    battleScene = new BattleScene(this, gameMode);
     view->setScene(battleScene);
     battleScene->startLoop();
     connect(dynamic_cast<const QtPrivate::FunctionPointer<void(BattleScene::*)()>::Object*>(battleScene),
@@ -40,10 +40,9 @@ void MyGame::startGame()
 
 void MyGame::gameOver(const QString& text)
 {
+    battleScene->stopLoop();
     gameOverScene = new GameOverScene(this, text);
     view->setScene(gameOverScene);
-    delete battleScene;
-    battleScene = nullptr;
     connect(dynamic_cast<const QtPrivate::FunctionPointer<void(GameOverScene::*)()>::Object*>(gameOverScene), &GameOverScene::restartGame, this, &MyGame::reStartGame);
     connect(dynamic_cast<const QtPrivate::FunctionPointer<void(GameOverScene::*)()>::Object*>(gameOverScene), &GameOverScene::exitGame, this, &MyGame::exitGame);
     connect(dynamic_cast<const QtPrivate::FunctionPointer<void(GameOverScene::*)()>::Object*>(gameOverScene), &GameOverScene::backToMainMenu, this, &MyGame::backToMainMenu);
@@ -51,10 +50,13 @@ void MyGame::gameOver(const QString& text)
 
 void MyGame::reStartGame()
 {
-    battleScene = new BattleScene(this);
+    auto oldScene = battleScene;
+    QString gameMode = dynamic_cast<BattleScene*>(battleScene)->get_game_mode();
+    battleScene = new BattleScene(this, gameMode);
     view->setScene(battleScene);
     battleScene->startLoop();
     delete gameOverScene;
+    delete oldScene;
     gameOverScene = nullptr;
     connect(dynamic_cast<const QtPrivate::FunctionPointer<void(BattleScene::*)()>::Object*>(battleScene),
             &BattleScene::gameOver, this, &MyGame::gameOver);

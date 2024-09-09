@@ -18,7 +18,7 @@ class MyGame : public QMainWindow
 public:
     explicit MyGame(QWidget* parent = nullptr);
 
-    void startGame();
+    void startGame(const QString& gameMode);
 
     void gameOver(const QString&);
 

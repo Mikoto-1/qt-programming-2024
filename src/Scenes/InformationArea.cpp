@@ -182,7 +182,7 @@ void InformationArea::processInformation(Character* character[2])
                     weaponInformationBox[i]->meleeWeaponPixItem->setPixmap(QPixmap(":/Items/Swords/FireSword.png"));
                     weaponInformationBox[i]->meleeWeaponMaterialText->setPlainText("金属");
                     weaponInformationBox[i]->meleeWeaponMaterialText->setDefaultTextColor(Qt::darkGray);
-                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("火双手剑");
+                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("火单手剑");
                     weaponInformationBox[i]->meleeWeaponTypeText->setDefaultTextColor(Qt::red);
                 }
                 else if (dynamic_cast<IceSword*>(melee))
@@ -190,7 +190,7 @@ void InformationArea::processInformation(Character* character[2])
                     weaponInformationBox[i]->meleeWeaponPixItem->setPixmap(QPixmap(":/Items/Swords/IceSword.png"));
                     weaponInformationBox[i]->meleeWeaponMaterialText->setPlainText("金属");
                     weaponInformationBox[i]->meleeWeaponMaterialText->setDefaultTextColor(Qt::darkGray);
-                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("冰双手剑");
+                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("冰单手剑");
                     weaponInformationBox[i]->meleeWeaponTypeText->setDefaultTextColor(Qt::blue);
                 }
                 else if (dynamic_cast<LightningSword*>(melee))
@@ -198,7 +198,7 @@ void InformationArea::processInformation(Character* character[2])
                     weaponInformationBox[i]->meleeWeaponPixItem->setPixmap(QPixmap(":/Items/Swords/LightningSword.png"));
                     weaponInformationBox[i]->meleeWeaponMaterialText->setPlainText("金属");
                     weaponInformationBox[i]->meleeWeaponMaterialText->setDefaultTextColor(Qt::darkGray);
-                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("电双手剑");
+                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("电单手剑");
                     weaponInformationBox[i]->meleeWeaponTypeText->setDefaultTextColor(Qt::magenta);
                 }
                 else if (dynamic_cast<WoodSword*>(melee))
@@ -206,7 +206,7 @@ void InformationArea::processInformation(Character* character[2])
                     weaponInformationBox[i]->meleeWeaponPixItem->setPixmap(QPixmap(":/Items/Swords/WoodSword.png"));
                     weaponInformationBox[i]->meleeWeaponMaterialText->setPlainText("木制");
                     weaponInformationBox[i]->meleeWeaponMaterialText->setDefaultTextColor(Qt::darkRed);
-                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("木双手剑");
+                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("木单手剑");
                     weaponInformationBox[i]->meleeWeaponTypeText->setDefaultTextColor(Qt::black);
                 }
                 else if (dynamic_cast<MetalSword*>(melee))
@@ -214,7 +214,7 @@ void InformationArea::processInformation(Character* character[2])
                     weaponInformationBox[i]->meleeWeaponPixItem->setPixmap(QPixmap(":/Items/Swords/MetalSword.png"));
                     weaponInformationBox[i]->meleeWeaponMaterialText->setPlainText("金属");
                     weaponInformationBox[i]->meleeWeaponMaterialText->setDefaultTextColor(Qt::darkRed);
-                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("双手剑");
+                    weaponInformationBox[i]->meleeWeaponTypeText->setPlainText("单手剑");
                     weaponInformationBox[i]->meleeWeaponTypeText->setDefaultTextColor(Qt::black);
                 }
             }

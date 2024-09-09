@@ -12,6 +12,7 @@
 #include "InformationArea.h"
 #include "Scene.h"
 #include "../Items/ArmorSuits/ArmorSuit.h"
+#include "../Items/Characters/AIPlayer.h"
 #include "../Items/Maps/Map.h"
 #include "../Items/Characters/Character.h"
 #include "../Items/Effects/Effect.h"
@@ -22,9 +23,15 @@ class BattleScene : public Scene
     Q_OBJECT
 
 public:
-    explicit BattleScene(QObject* parent);
+    explicit BattleScene(QObject* parent, const QString& gameMode);
 
     void processInput() override;
+
+    void processAIActions();
+
+    void processAIMoving(AIPlayer* aiPlayer);
+
+    void processAIApproach(AIPlayer* aiPlayer);
 
     void processMovement() override;
 
@@ -38,6 +45,8 @@ public:
 
     void processAttacking();
 
+    void processAnimationAfterHit();
+
     void processHitting();
 
     void addEffect(Weapon* weapon, Item* item);
@@ -49,7 +58,7 @@ public:
     void processInformation();
 
 signals:
-    void gameOver(QString);
+    void gameOver(QString); // signal to be emitted when the game is over
 
 protected slots:
     void update() override;
@@ -81,6 +90,17 @@ private:
     Character* character[2] = {};
     QPointF gravitationalAcceleration = QPointF(0,0.003);
     QVector<Platform*> platforms;
+
+public:
+    [[nodiscard]] QVector<Platform*> get_platforms() const;
+
+private:
+    QString gameMode;
+
+public:
+    [[nodiscard]] QString get_game_mode() const;
+
+private:
     QVector<Weapon*> spareWeapons;
     QVector<ArmorSuit*> spareArmorSuits;
     QVector<Effect*> effects;

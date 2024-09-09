@@ -68,7 +68,7 @@ public:
 
     Armor* pickupArmor(Armor* newArmor);
 
-    void pickupArmorSuit(ArmorSuit* newArmSuit);
+    ArmorSuit* pickupArmorSuit(ArmorSuit* newArmSuit);
 
     void pickupWeapon(Weapon* newWeapon);
 
@@ -115,6 +115,14 @@ public:
     const qreal maxHitPoints = 100;
 
     bool damageDone = false;
+
+    bool beHit = false;
+
+    void displayHit();
+
+    int hitCountdown = 40;
+
+    int initialHitCountdown = 40;
 
     QMap<QString, int> arrowNumbers = {{"Ordinary", 0}, {"Fire", 0}, {"Ice", 0}, {"Lightning", 0}};
     // QList<Arrow*> arrows = {new OrdinaryArrow(this), new FireArrow(this), new IceArrow(this), new LightningArrow(this)};

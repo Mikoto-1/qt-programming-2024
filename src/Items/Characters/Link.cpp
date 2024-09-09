@@ -19,14 +19,14 @@
 Link::Link(QGraphicsItem* parent) : Character(parent)
 {
     armorSuit = new OrdinarySuit(this);
-    meleeWeapon = new WoodSpear(this);
-    bow = new OrdinaryWoodBow(this);
+    // meleeWeapon = new WoodSpear(this);
+    // bow = new OrdinaryWoodBow(this);
     currentWeapon = meleeWeapon;
     unusedWeapon = bow;
     armorSuit->mountToParent();
-    meleeWeapon->mountToParent();
-    bow->mountToParent();
-    bow->unequippedFromParent();
+    // meleeWeapon->mountToParent();
+    // bow->mountToParent();
+    // bow->unequippedFromParent();
     armor = armorSuit->armor;
     legEquipment = armorSuit->legEquipment;
     headEquipment = armorSuit->headEquipment;

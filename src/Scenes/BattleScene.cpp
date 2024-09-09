@@ -3,11 +3,15 @@
 //
 
 #include "BattleScene.h"
+
 #include <QDebug>
-#include <QLineF>
+#include <QGraphicsProxyWidget>
 #include <QLineEdit>
+#include <QLineF>
+#include <QMainWindow>
 #include <QRandomGenerator>
 #include <QString>
+
 #include "../Items/Armors/FireProofArmor.h"
 #include "../Items/ArmorSuits/ColdProofArmorSuit.h"
 #include "../Items/ArmorSuits/FireProofArmorSuit.h"
@@ -23,7 +27,11 @@
 #include "../Items/Bows/LegendaryWoodBow.h"
 #include "../Items/Bows/OrdinaryMetalBow.h"
 #include "../Items/Bows/OrdinaryWoodBow.h"
+#include "../Items/Characters/AIPlayer.h"
 #include "../Items/Characters/Link.h"
+#include "../Items/Effects/FireEffect.h"
+#include "../Items/Effects/IceEffect.h"
+#include "../Items/Effects/LightningEffect.h"
 #include "../Items/LargeSwords/FireLargeSword.h"
 #include "../Items/LargeSwords/IceLargeSword.h"
 #include "../Items/LargeSwords/LightningLargeSword.h"
@@ -44,14 +52,8 @@
 #include "../Items/Swords/LightningSword.h"
 #include "../Items/Swords/MetalSword.h"
 #include "../Items/Swords/WoodSword.h"
-#include <QGraphicsProxyWidget>
-#include <QMainWindow>
 
-#include "../Items/Effects/FireEffect.h"
-#include "../Items/Effects/IceEffect.h"
-#include "../Items/Effects/LightningEffect.h"
-
-BattleScene::BattleScene(QObject* parent) : Scene(parent)
+BattleScene::BattleScene(QObject* parent, const QString& gameMode) : Scene(parent), gameMode(gameMode)
 {
     // This is useful if you want the scene to have the exact same dimensions as the view
     setSceneRect(0, 0, 1280, 720);
@@ -83,10 +85,17 @@ BattleScene::BattleScene(QObject* parent) : Scene(parent)
     character[0] = new Link();
     character[0]->setTransform(QTransform().scale(-1, 1));
     character[0]->setToRight(true);
-    character[1] = new Link();
+    if (gameMode == "PLAYER")
+    {
+        character[1] = new Link();
+    }
+    else if (gameMode == "AI")
+    {
+        character[1] = new AIPlayer();
+    }
     character[1]->setToLeft(true);
 
-    // add items to the scene
+    // add the items to the scene
     addItem(map);
     addItem(platforms[0]);
     addItem(platforms[1]);
@@ -97,6 +106,10 @@ BattleScene::BattleScene(QObject* parent) : Scene(parent)
     map->scaleToFitScene(this);
     character[0]->setPos(map->getSpawnPos() - QPointF(120, 0));
     character[1]->setPos(map->getSpawnPos() + QPointF(120, 0));
+    for (auto platform : platforms)
+    {
+        qDebug() << "Top Border" << platform->getTopBorder() << "Bottom Border" << platform->getBottomBorder();
+    }
 }
 
 void BattleScene::processInput()
@@ -108,8 +121,302 @@ void BattleScene::processInput()
     }
     if (character[1] != nullptr)
     {
+        if (dynamic_cast<AIPlayer*>(character[1]) != nullptr)
+        {
+            processAIMoving(dynamic_cast<AIPlayer*>(character[1]));
+        }
         character[1]->processInput();
     }
+}
+
+void BattleScene::processAIActions()
+{
+    if (auto ai = dynamic_cast<AIPlayer*>(character[1]); ai != nullptr)
+    {
+        if (ai->getState() == "IDLE")
+        {
+            if (ai->getCurrentWeapon() == nullptr)
+            {
+                for (auto weapon : spareWeapons)
+                {
+                    if (weapon->isMountable() == true && weapon->isMounted() == false)
+                    {
+                        ai->setApproachingState();
+                        ai->target = weapon;
+                        return;
+                    }
+                }
+            }
+            else if (ai->getUnusedWeapon() == nullptr)
+            {
+                if (ai->getCurrentWeapon() == ai->getMeleeWeapon())
+                {
+                    for (auto weapon : spareWeapons)
+                    {
+                        if (dynamic_cast<Bow*>(weapon) != nullptr && weapon->isMountable() == true && weapon->isMounted() == false)
+                        {
+                            ai->setApproachingState();
+                            ai->target = weapon;
+                            return;
+                        }
+                    }
+                }
+                else if (ai->getCurrentWeapon() == ai->getBow())
+                {
+                    for (auto weapon : spareWeapons)
+                    {
+                        if (dynamic_cast<MeleeWeapon*>(weapon) != nullptr && weapon->isMountable() == true && weapon->isMounted() == false)
+                        {
+                            ai->setApproachingState();
+                            ai->target = weapon;
+                            return;
+                        }
+                    }
+                }
+            }
+            if (ai->getMeleeWeapon() != nullptr && ai->getMeleeWeapon()->damageType1->getDamageType() == "Ordinary")
+            {
+                for (auto weapon : spareWeapons)
+                {
+                    if (dynamic_cast<MeleeWeapon*>(weapon) != nullptr && weapon->isMountable() == true && weapon->isMounted() == false)
+                    {
+                        discardWeapon(ai);
+                        ai->setApproachingState();
+                        ai->target = weapon;
+                        return;
+                    }
+                }
+            }
+            if (true)
+            {
+                for (auto weapon : spareWeapons)
+                {
+                    if (dynamic_cast<Arrow*>(weapon) != nullptr && weapon->isMountable() == true && weapon->isMounted() == false)
+                    {
+                        ai->setApproachingState();
+                        ai->target = weapon;
+                        return;
+                    }
+                }
+            }
+            if (ai->getArmorSuit()->proofType == "")
+            {
+                if (!spareArmorSuits.empty())
+                {
+                    ai->setApproachingState();
+                    ai->target = spareArmorSuits[0];
+                    return;
+                }
+            }
+            if (ai->getCurrentWeapon() != nullptr)
+            {
+                if (ai->getCurrentWeapon() == ai->getMeleeWeapon() ||
+                    ai->getCurrentWeapon() == ai->getBow() && ai->getCurrentArrow() != nullptr)
+                {
+                    ai->setApproachingState();
+                    ai->target = character[0];
+                    return;
+                }
+                if (ai->getCurrentWeapon() == ai->getBow() && ai->getCurrentArrow() == nullptr &&
+                    ai->getUnusedWeapon() != nullptr)
+                {
+                    ai->switchWeapon();
+                    ai->setApproachingState();
+                    ai->target = character[0];
+                    return;
+                }
+            }
+
+        }
+        else if (ai->getState() == "APPROACHING")
+        {
+
+        }
+        else if (ai->getState() == "PICK_TARGET")
+        {
+            ai->setToLeft(ai->isToLeft());
+            ai->setToRight(ai->isToRight());
+            ai->setLeftDown(false);
+            ai->setRightDown(false);
+            ai->setIdleState();
+            ai->target = nullptr;
+            ai->setPickDown(false);
+        }
+        else if (ai->getState() == "ATTACK")
+        {
+            ai->setLeftDown(false);
+            ai->setRightDown(false);
+            if (ai->isUsingMelee())
+            {
+                if (!ai->isAttacking())
+                {
+                    ai->damageDone = false;
+                }
+                ai->setAttacking(true);
+                ai->setIdleState();
+            }
+            else if (ai->isUsingBow() && ai->getCurrentArrow() != nullptr)
+            {
+                shootArrow(ai);
+                ai->setIdleState();
+            }
+        }
+    }
+}
+
+void BattleScene::processAIMoving(AIPlayer* aiPlayer)
+{
+    if (aiPlayer == nullptr || aiPlayer->target == nullptr)
+    {
+        return;
+    }
+    if (aiPlayer->state == "APPROACHING")
+    {
+        processAIApproach(aiPlayer);
+    }
+}
+
+void BattleScene::processAIApproach(AIPlayer* aiPlayer)
+{
+    if (QLineF(aiPlayer->target->pos(),aiPlayer->pos()).length() <= 100)
+    {
+        if (dynamic_cast<Character*>(aiPlayer->target) != nullptr)
+        {
+            aiPlayer->setLeftDown(false);
+            aiPlayer->setRightDown(false);
+            aiPlayer->setAttackState();
+        }
+        else
+        {
+            aiPlayer->setPickTargetState();
+            aiPlayer->setPickDown(true);
+            return;
+        }
+    }
+    // 当目标位于第三层，要先爬上第二层
+    if (aiPlayer->target->y() <= 240)
+    {
+        if (aiPlayer->y() <= 240)
+        {
+            if (aiPlayer->target->x() > aiPlayer->x())
+            {
+                aiPlayer->setRightDown(true);
+                aiPlayer->setLeftDown(false);
+            }
+            else
+            {
+                aiPlayer->setLeftDown(true);
+                aiPlayer->setRightDown(false);
+            }
+        }
+        else if (aiPlayer->y() <= 440)
+        {
+            if (aiPlayer->target->x() <= 640 && aiPlayer->isInAir() == false)
+            {
+                aiPlayer->setRightDown(true);
+                aiPlayer->setLeftDown(false);
+            }
+            else if (aiPlayer->target->x() >= 640 && aiPlayer->isInAir() == false)
+            {
+                aiPlayer->setLeftDown(true);
+                aiPlayer->setRightDown(false);
+            }
+            if (aiPlayer->isInAir() == false && (aiPlayer->x() >= 200 && aiPlayer->x() <= 230 || aiPlayer->x() <= 1080 && aiPlayer->x() >= 1050))
+            {
+                aiPlayer->startJumping();
+            }
+        }
+        else if (aiPlayer->y() <= map->getFloorHeight())
+        {
+            if (aiPlayer->target->x() >= 640)
+            {
+                aiPlayer->setRightDown(true);
+                aiPlayer->setLeftDown(false);
+            }
+            else if (aiPlayer->target->x() <= 640)
+            {
+                aiPlayer->setLeftDown(true);
+                aiPlayer->setRightDown(false);
+            }
+            if (aiPlayer->isInAir() == false && (aiPlayer->x() <= 300 || aiPlayer->x() >= 980))
+            {
+                aiPlayer->startJumping();
+            }
+        }
+    }
+    else if (aiPlayer->target->y() <= 440)
+    {
+        if (aiPlayer->y() <= 240 && aiPlayer->isInAir() ==false)
+        {
+            if (aiPlayer->target->x() > aiPlayer->x())
+            {
+                aiPlayer->setRightDown(true);
+                aiPlayer->setLeftDown(false);
+            }
+            else if (aiPlayer->target->x() < aiPlayer->x())
+            {
+                aiPlayer->setLeftDown(true);
+                aiPlayer->setRightDown(false);
+            }
+        }
+        if (aiPlayer->target->x() < aiPlayer->x())
+        {
+            aiPlayer->setLeftDown(true);
+            aiPlayer->setRightDown(false);
+        }
+        else if (aiPlayer->target->x() > aiPlayer->x())
+        {
+            aiPlayer->setRightDown(true);
+            aiPlayer->setLeftDown(false);
+        }
+        if (aiPlayer->isInAir() == false && (aiPlayer->x() >= 230 && aiPlayer->x() <= 260 || aiPlayer->x() <= 1050 && aiPlayer->x() >= 1020))
+        {
+            aiPlayer->startJumping();
+        }
+    }
+    else
+    {
+        if (aiPlayer->y() <= 250)
+        {
+            if (aiPlayer->target->x() <= 640)
+            {
+                aiPlayer->setLeftDown(true);
+                aiPlayer->setRightDown(false);
+            }
+            else if (aiPlayer->target->x() >= 640)
+            {
+                aiPlayer->setRightDown(true);
+                aiPlayer->setLeftDown(false);
+            }
+        }
+        else if (aiPlayer->y() <= 450 && aiPlayer->isInAir() == false)
+        {
+            if (aiPlayer->target->x() < aiPlayer->x())
+            {
+                aiPlayer->setLeftDown(true);
+                aiPlayer->setRightDown(false);
+            }
+            else if (aiPlayer->target->x() > aiPlayer->x())
+            {
+                aiPlayer->setRightDown(true);
+                aiPlayer->setLeftDown(false);
+            }
+        }
+        else
+        {
+            if (aiPlayer->target->x() > aiPlayer->x() + 100)
+            {
+                aiPlayer->setRightDown(true);
+                aiPlayer->setLeftDown(false);
+            }
+            else if (aiPlayer->target->x() < aiPlayer->x() - 100)
+            {
+                aiPlayer->setLeftDown(true);
+                aiPlayer->setRightDown(false);
+            }
+        }
+    }
+    aiPlayer->pre_pos = aiPlayer->pos();
 }
 
 void BattleScene::keyPressEvent(QKeyEvent* event)
@@ -173,9 +480,11 @@ void BattleScene::keyPressEvent(QKeyEvent* event)
             }
             else if (character[0]->isUsingMelee())
             {
-                // processAttacking(character[0]);
+                if (!character[0]->isAttacking())
+                {
+                    character[0]->damageDone = false;
+                }
                 character[0]->setAttacking(true);
-                character[0]->damageDone = false;
             }
         }
         break;
@@ -189,27 +498,27 @@ void BattleScene::keyPressEvent(QKeyEvent* event)
         }
         break;
     case Qt::Key_H:
-        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr)
+        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             character[1]->setLeftDown(true);
             character[1]->setToLeft(true);
         }
         break;
     case Qt::Key_K:
-        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr)
+        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             character[1]->setRightDown(true);
             character[1]->setToRight(true);
         }
         break;
     case Qt::Key_L:
-        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr)
+        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             character[1]->setPickDown(true);
         }
         break;
     case Qt::Key_U:
-        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr)
+        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             if (!character[1]->isInAir())
             {
@@ -218,7 +527,7 @@ void BattleScene::keyPressEvent(QKeyEvent* event)
         }
         break;
     case Qt::Key_I:
-        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr)
+        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             if (character[1]->isUsingMelee())
             {
@@ -231,13 +540,13 @@ void BattleScene::keyPressEvent(QKeyEvent* event)
         }
         break;
     case Qt::Key_O:
-        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr)
+        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             character[1]->switchWeapon();
         }
         break;
     case Qt::Key_Y:
-        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr)
+        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             if (character[1]->isUsingBow())
             {
@@ -245,14 +554,16 @@ void BattleScene::keyPressEvent(QKeyEvent* event)
             }
             else if (character[1]->isUsingMelee())
             {
-                // processAttacking(character[0]);
+                if (!character[1]->isAttacking())
+                {
+                    character[1]->damageDone = false;
+                }
                 character[1]->setAttacking(true);
-                character[1]->damageDone = false;
             }
         }
         break;
     case Qt::Key_P:
-        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr)
+        if (character[1] != nullptr && dynamic_cast<IceEffect*>(character[1]->currentEffect) == nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             if (character[1]->isUsingBow())
             {
@@ -288,19 +599,19 @@ void BattleScene::keyReleaseEvent(QKeyEvent* event)
         }
         break;
     case Qt::Key_H:
-        if (character[1] != nullptr)
+        if (character[1] != nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             character[1]->setLeftDown(false);
         }
         break;
     case Qt::Key_K:
-        if (character[1] != nullptr)
+        if (character[1] != nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             character[1]->setRightDown(false);
         }
         break;
     case Qt::Key_L:
-        if (character[1] != nullptr)
+        if (character[1] != nullptr && dynamic_cast<AIPlayer*>(character[1]) == nullptr)
         {
             character[1]->setPickDown(false);
         }
@@ -321,10 +632,15 @@ void BattleScene::update()
     {
         // 当游戏未结束时，进行游戏的更新
         Scene::update();
+        if (dynamic_cast<AIPlayer*>(character[1]) != nullptr)
+        {
+            processAIActions();
+        }
         processLanding();
         processCollision();
         processAttacking();
         processHitting();
+        processAnimationAfterHit();
         processEffect();
         processInformation();
         autoGenerateItems();
@@ -823,6 +1139,16 @@ void BattleScene::endTheGame()
     }
 }
 
+QVector<Platform*> BattleScene::get_platforms() const
+{
+    return platforms;
+}
+
+QString BattleScene::get_game_mode() const
+{
+    return gameMode;
+}
+
 void BattleScene::processCheatCode(const QString& cheatCode)
 {
     if (cheatCode.size() != 4)
@@ -1040,6 +1366,7 @@ void BattleScene::processAttacking()
                         proofType)
                     {
                         character[1]->processDamage(character[0]->getCurrentWeapon()->get_damage());
+                        character[1]->beHit = true;
                         character[0]->damageDone = true;
                         addEffect(character[0]->getCurrentWeapon(), character[1]);
                     }
@@ -1061,6 +1388,7 @@ void BattleScene::processAttacking()
                             getArmorSuit()->proofType)
                         {
                             character[1]->processDamage(character[0]->getCurrentWeapon()->get_damage());
+                            character[1]->beHit = true;
                             character[0]->damageDone = true;
                             addEffect(character[0]->getCurrentWeapon(), character[1]);
                         }
@@ -1093,6 +1421,7 @@ void BattleScene::processAttacking()
                         proofType)
                     {
                         character[0]->processDamage(character[1]->getCurrentWeapon()->get_damage());
+                        character[0]->beHit = true;
                         character[1]->damageDone = true;
                         addEffect(character[1]->getCurrentWeapon(), character[0]);
                     }
@@ -1114,6 +1443,7 @@ void BattleScene::processAttacking()
                             getArmorSuit()->proofType)
                         {
                             character[0]->processDamage(character[1]->getCurrentWeapon()->get_damage());
+                            character[0]->beHit = true;
                             character[1]->damageDone = true;
                             addEffect(character[1]->getCurrentWeapon(), character[0]);
                         }
@@ -1121,6 +1451,17 @@ void BattleScene::processAttacking()
                     }
                 }
             }
+        }
+    }
+}
+
+void BattleScene::processAnimationAfterHit()
+{
+    for (auto character : character)
+    {
+        if (character != nullptr)
+        {
+            character->displayHit();
         }
     }
 }
@@ -1275,6 +1616,7 @@ void BattleScene::processHitting()
                         {
                             if (spareWeapon->damageType1->getDamageType() != character->getArmorSuit()->proofType)
                             {
+                                character->beHit = true;
                                 character->processDamage(spareWeapon->get_damage());
                                 addEffect(spareWeapon, character);
                             }
@@ -1307,6 +1649,7 @@ void BattleScene::processHitting()
                         {
                             if (spareWeapon->damageType1->getDamageType() != character->getArmorSuit()->proofType)
                             {
+                                character->beHit = true;
                                 character->processDamage(spareWeapon->get_damage());
                                 addEffect(spareWeapon, character);
                             }
@@ -1339,6 +1682,7 @@ void BattleScene::processHitting()
                         {
                             if (spareWeapon->damageType1->getDamageType() != character->getArmorSuit()->proofType)
                             {
+                                character->beHit = true;
                                 character->processDamage(spareWeapon->get_damage());
                                 addEffect(spareWeapon, character);
                             }

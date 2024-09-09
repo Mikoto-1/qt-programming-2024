@@ -59,5 +59,8 @@
         <file>Icons/MainMenuButton.ico</file>
         <file>Icons/GamePauseHint.ico</file>
         <file>Icons/ResumeButton.ico</file>
+        <file>Icons/PlayerMode.ico</file>
+        <file>Icons/AIMode.ico</file>
+        <file>Icons/ModeChooseHint.ico</file>
     </qresource>
 </RCC>

@@ -6,7 +6,7 @@
 
 #include "../Materials/MetalMaterial.h"
 
-MetalSpear::MetalSpear(QGraphicsItem* parent) : Spear(parent,":/Items/Spears/WoodSpear.png")
+MetalSpear::MetalSpear(QGraphicsItem* parent) : Spear(parent,":/Items/Spears/MetalSpear.png")
 {
     damageType1 = new OrdinaryDamage;
     material = new MetalMaterial;

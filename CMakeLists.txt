@@ -187,6 +187,8 @@ add_executable(qt_programming_2024 src/main.cpp
         src/Scenes/StartMenuScene.h
         src/Scenes/GameOverScene.cpp
         src/Scenes/GameOverScene.h
+        src/Items/Characters/AIPlayer.cpp
+        src/Items/Characters/AIPlayer.h
 )
 target_link_libraries(qt_programming_2024
         Qt::Core

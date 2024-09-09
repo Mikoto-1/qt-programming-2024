@@ -2,9 +2,9 @@
 // Created by gerw on 8/20/24.
 //
 
-#include <QTransform>
 #include "Character.h"
 
+#include <QTransform>
 #include <bits/fs_fwd.h>
 
 #include "../Arrows/Arrow.h"
@@ -117,6 +117,10 @@ void Character::setVelocity(const QPointF& velocity)
 
 void Character::startJumping()
 {
+    if (inAir)
+    {
+        return;
+    }
     constexpr auto initialVerticalVelocity = -1.2;
     velocity.setY(initialVerticalVelocity);
     setInAir(true);
@@ -140,11 +144,13 @@ void Character::processInput()
     {
         velocity.setX(velocity.x() - moveSpeed);
         setTransform(QTransform().scale(1, 1));
+        setToLeft(true);
     }
     if (isRightDown())
     {
         velocity.setX(velocity.x() + moveSpeed);
         setTransform(QTransform().scale(-1, 1));
+        setToRight(true);
     }
     velocity.setY(getVelocity().y());
     setVelocity(velocity);
@@ -289,14 +295,14 @@ Armor* Character::pickupArmor(Armor* newArmor)
     return oldArmor;
 }
 
-void Character::pickupArmorSuit(ArmorSuit* newArmSuit)
+ArmorSuit* Character::pickupArmorSuit(ArmorSuit* newArmSuit)
 {
     auto oldArmorSuit = armorSuit;
     if (oldArmorSuit != nullptr)
     {
         oldArmorSuit->unmount();
-        oldArmorSuit->setPos(newArmSuit->pos());
-        oldArmorSuit->setParentItem(parentItem());
+        delete oldArmorSuit;
+        oldArmorSuit = nullptr;
     }
     newArmSuit->setParentItem(this);
     newArmSuit->mountToParent();
@@ -304,6 +310,7 @@ void Character::pickupArmorSuit(ArmorSuit* newArmSuit)
     armor = armorSuit->armor;
     legEquipment = armorSuit->legEquipment;
     headEquipment = armorSuit->headEquipment;
+    return oldArmorSuit;
 }
 
 void Character::pickupWeapon(Weapon* newWeapon)
@@ -745,6 +752,24 @@ ArmorSuit* Character::getArmorSuit() const
 Arrow* Character::getCurrentArrow() const
 {
     return currentArrow;
+}
+
+void Character::displayHit()
+{
+    if (hitCountdown <= 0)
+    {
+        hitCountdown = initialHitCountdown;
+        beHit = false;
+        setVisible(true);
+    }
+    else
+    {
+        if (beHit)
+        {
+            setVisible(!isVisible());
+            hitCountdown -= 1;
+        }
+    }
 }
 
 qreal Character::getHitPoints() const
